@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مودبورد العيون الغاضبة المتوهجة</title>
+    <style>
+        /* إعدادات الشاشة والخلفية */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #030a04; /* أسود مائل للأخضر الداكن جداً */
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* خلفية الحروف الرقمية (Matrix) مدمجة بشكل نيون خفيف */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.08;
+            mix-blend-mode: screen;
+        }
+
+        /* حاوية العيون الرقمية */
+        .moodboard-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            gap: 110px; /* المسافة بين العينين */
+            filter: drop-shadow(0 0 25px rgba(0, 255, 0, 0.6)); /* تأثير توهج عام للمودبورد */
+        }
+
+        /* الهيكل الأساسي للعين */
+        .eye {
+            width: 180px;
+            height: 90px;
+            background-color: #00ff00;
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            opacity: 0;
+            transform: scaleY(0); /* تبدأ مغلقة تماماً */
+            box-shadow: 
+                0 0 30px #00ff00, 
+                0 0 60px #00ff00, 
+                0 0 100px #00ff55,
+                inset 0 0 15px rgba(255, 255, 255, 0.6); /* قلب العين يشع نور أبيض/أخضر */
+        }
+
+        /* --- الأشكال الهندسية للعين أثناء الحركة والتطور --- */
+
+        /* الحالة 1: الإغلاق التام (مظلمة ومختفية) */
+        .eye.closed {
+            opacity: 0;
+            height: 0px;
+            transform: scaleY(0);
+            box-shadow: none;
+        }
+
+        /* الحالة 2: الفتح المفاجئ مع وميض النور الأخضر القوي */
+        .eye.opening {
+            opacity: 1;
+            height: 90px;
+            transform: scaleY(1);
+            /* شكل مربع نيون زواياه انسيابية عند الفتح */
+            clip-path: polygon(0% 10%, 100% 10%, 100% 90%, 0% 90%);
+            border-radius: 15px;
+        }
+
+        /* الحالة 3: الغضب والشر الشديد (انكماش حاد وميلان مرعب) */
+        #leftEye.angry {
+            opacity: 1;
+            height: 95px;
+            transform: rotate(18deg) scaleY(0.85);
+            /* قص حاد جداً ليعطي شكل عيون الأنمي/الوحوش الغاضبة */
+            clip-path: polygon(0% 0%, 100% 75%, 100% 100%, 0% 90%);
+            background-color: #00ff33;
+            box-shadow: 0 0 40px #00ff00, 0 0 80px #00ff00;
+        }
+
+        #rightEye.angry {
+            opacity: 1;
+            height: 95px;
+            transform: rotate(-18deg) scaleY(0.85);
+            /* قص معاكس تماماً للعين اليمنى */
+            clip-path: polygon(0% 75%, 100% 0%, 100% 90%, 0% 100%);
+            background-color: #00ff33;
+            box-shadow: 0 0 40px #00ff00, 0 0 80px #00ff00;
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <div class="moodboard-container">
+        <div id="leftEye" class="eye closed"></div>
+        <div id="rightEye" class="eye closed"></div>
+    </div>
+
+    <script>
+        // === 1. كود خلفية الحروف الرقمية (Matrix) ===
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const chars = "01010101ANGERYGRIDGREENSYSTEM☠☣";
+        const charArr = chars.split("");
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(3, 10, 4, 0.08)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00ff33';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = charArr[Math.floor(Math.random() * charArr.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 40);
+
+
+        // === 2. جافا سكريبت: تسلسل حركة العيون التلقائي (السيناريو الدرامي) ===
+        const leftEye = document.getElementById('leftEye');
+        const rightEye = document.getElementById('rightEye');
+
+        function startEyeSequence() {
+            // [الخطوة 1]: العيون مغلقة في البداية (ظلام)
+            leftEye.className = "eye closed";
+            rightEye.className = "eye closed";
+
+            // [الخطوة 2]: بعد ثانيتين، تفتح فجأة وتطلق نور أخضر متوهج قوي جداً
+            setTimeout(() => {
+                leftEye.className = "eye opening";
+                rightEye.className = "eye opening";
+            }, 2000);
+
+            // [الخطوة 3]: بعد ثانية واحدة من الفتح، تتقلص وتتحول إلى وضع الغضب الشديد والحاد
+            setTimeout(() => {
+                leftEye.className = "eye angry";
+                rightEye.className = "eye angry";
+            }, 3200);
+
+            // [الخطوة 4]: تبقى غاضبة وتشع بالشر لمدة 4 ثوانٍ، ثم تغلق لتعيد الدورة من جديد
+            setTimeout(() => {
+                // إغلاق العيون مجدداً لبدء اللوب مرة أخرى
+                leftEye.className = "eye closed";
+                rightEye.className = "eye closed";
+            }, 7500);
+        }
+
+        // تشغيل اللوب اللانهائي للحركة
+        startEyeSequence(); 
+        setInterval(startEyeSequence, 8000); // تتكرر الدورة بالكامل كل 8 ثوانٍ تلقائياً
+
+    </script>
+</body>
+</html>
